@@ -1,0 +1,2321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Travel Portfolio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        :root {
+            --ink: #0D0D0D;
+            --paper: #F5F0E8;
+            --accent: #C4622D;
+            --accent2: #3D6B57;
+            --muted: #8A7F72;
+            --line: #D8CFBF;
+            --card-bg: #FDFAF4;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); overflow-x: hidden; }
+
+        /* ── VIEWS ── */
+        .view { display: none; }
+        .view.active { display: block; }
+
+        /* ══════════════════════════════════
+           HOME VIEW
+        ══════════════════════════════════ */
+        .home-hero {
+            min-height: 100vh;
+            background: var(--ink);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .home-hero-bg {
+            position: absolute;
+            inset: 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(12rem, 28vw, 26rem);
+            font-weight: 700;
+            color: rgba(255,255,255,0.025);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            letter-spacing: -0.05em;
+        }
+        .home-eyebrow {
+            font-size: 0.75rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+            animation: fadeUp 1s ease both;
+        }
+        .home-hero h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3.5rem, 10vw, 9rem);
+            font-weight: 700;
+            color: var(--paper);
+            line-height: 0.95;
+            letter-spacing: -0.03em;
+            animation: fadeUp 1s ease 0.1s both;
+        }
+        .home-hero p {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: clamp(1.1rem, 2.5vw, 1.6rem);
+            color: var(--muted);
+            margin-top: 1.5rem;
+            font-weight: 300;
+            animation: fadeUp 1s ease 0.2s both;
+        }
+        .home-scroll-cue {
+            position: absolute;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--muted);
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
+            animation: fadeUp 1s ease 0.4s both;
+        }
+        .home-scroll-line {
+            width: 1px;
+            height: 48px;
+            background: linear-gradient(to bottom, var(--muted), transparent);
+            animation: scrollPulse 2s ease infinite;
+        }
+        @keyframes scrollPulse {
+            0% { transform: scaleY(0); transform-origin: top; }
+            50% { transform: scaleY(1); transform-origin: top; }
+            51% { transform: scaleY(1); transform-origin: bottom; }
+            100% { transform: scaleY(0); transform-origin: bottom; }
+        }
+
+        /* Years Grid */
+        .years-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 6rem 2rem 8rem;
+        }
+        .years-section-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .years-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line);
+        }
+        .years-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+        .year-card {
+            background: var(--card-bg);
+            border: 1px solid var(--line);
+            padding: 2.5rem;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+        .year-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 0;
+            background: var(--accent);
+            transition: height 0.4s ease;
+        }
+        .year-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(13,13,13,0.1);
+            border-color: var(--accent);
+        }
+        .year-card:hover::before { height: 100%; }
+        .year-card-bg-num {
+            position: absolute;
+            right: -0.5rem;
+            bottom: -1.5rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 8rem;
+            font-weight: 700;
+            color: rgba(13,13,13,0.04);
+            line-height: 1;
+            user-select: none;
+        }
+        .year-card-year {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+            margin-bottom: 0.8rem;
+        }
+        .year-card-stats {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .year-stat { display: flex; flex-direction: column; gap: 0.1rem; }
+        .year-stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .year-stat-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .year-card-destinations {
+            font-size: 0.88rem;
+            color: var(--muted);
+            line-height: 1.6;
+            font-style: italic;
+        }
+        .year-card-arrow {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            width: 38px;
+            height: 38px;
+            background: var(--ink);
+            color: var(--paper);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .year-card:hover .year-card-arrow { opacity: 1; transform: translateX(0); }
+
+        /* ══════════════════════════════════
+           YEAR VIEW
+        ══════════════════════════════════ */
+        .year-view-header {
+            background: var(--ink);
+            padding: 3rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .year-view-header-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+        .back-btn {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: var(--paper);
+            padding: 0.5rem 1.2rem;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        .back-btn:hover { background: rgba(255,255,255,0.15); }
+        .year-view-bg-num {
+            position: absolute;
+            right: -1rem;
+            bottom: -2rem;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(10rem, 20vw, 18rem);
+            font-weight: 700;
+            color: rgba(255,255,255,0.03);
+            line-height: 1;
+            user-select: none;
+        }
+        .year-view-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(5rem, 14vw, 11rem);
+            font-weight: 700;
+            color: var(--paper);
+            line-height: 0.9;
+            letter-spacing: -0.03em;
+        }
+        .year-view-sub {
+            font-family: 'Cormorant Garamond', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--muted);
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+        }
+        .year-view-stats {
+            display: flex;
+            gap: 3rem;
+            flex-wrap: wrap;
+        }
+        .year-view-stat-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--paper);
+            display: block;
+            line-height: 1;
+        }
+        .year-view-stat-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* Month Nav */
+        .month-nav {
+            position: sticky;
+            top: 0;
+            background: rgba(245,240,232,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--line);
+            z-index: 100;
+            padding: 0 2rem;
+        }
+        .month-nav-inner {
+            max-width: 1300px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 0;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+        .month-nav-inner::-webkit-scrollbar { display: none; }
+        .month-nav-year {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .month-pills { display: flex; gap: 0.35rem; }
+        .month-pill {
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid var(--line);
+            background: transparent;
+            color: var(--muted);
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            font-family: 'DM Sans', sans-serif;
+        }
+        .month-pill.has-trips { border-color: var(--accent); color: var(--accent); }
+        .month-pill.has-trips:hover { background: var(--accent); color: white; border-color: var(--accent); }
+
+        /* Timeline */
+        .timeline-body {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 4rem 2rem 8rem;
+        }
+        .month-group { margin-bottom: 5rem; scroll-margin-top: 80px; }
+        .month-label {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .month-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .month-divider { flex: 1; height: 1px; background: var(--line); }
+        .month-trip-count { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+        .trips-row {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+
+        /* Trip Card */
+        .trip-card {
+            background: var(--card-bg);
+            border: 1px solid var(--line);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .trip-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 48px rgba(13,13,13,0.12);
+            border-color: var(--accent);
+        }
+        .trip-cover {
+            width: 100%;
+            height: 210px;
+            object-fit: cover;
+            display: block;
+        }
+        .trip-cover-placeholder {
+            width: 100%;
+            height: 210px;
+            background: linear-gradient(135deg, #DDD5C5 0%, #C8BFAF 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.5);
+        }
+        .trip-card-body { padding: 1.4rem; }
+        .trip-date-tag { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.5rem; font-weight: 500; }
+        .trip-title { font-family: 'Cormorant Garamond', serif; font-size: 1.7rem; font-weight: 600; color: var(--ink); line-height: 1.1; margin-bottom: 0.25rem; }
+        .trip-subtitle { font-size: 0.82rem; color: var(--muted); font-style: italic; margin-bottom: 1rem; }
+        .trip-album-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            color: var(--muted);
+            border: 1px solid var(--line);
+            padding: 0.22rem 0.65rem;
+            border-radius: 999px;
+        }
+        .trip-card-arrow {
+            position: absolute;
+            bottom: 1.4rem;
+            right: 1.4rem;
+            width: 34px;
+            height: 34px;
+            background: var(--ink);
+            color: var(--paper);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            opacity: 0;
+            transform: translateX(-8px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        .trip-card:hover .trip-card-arrow { opacity: 1; transform: translateX(0); }
+
+        /* ── MODAL ── */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(13,13,13,0.97);
+            z-index: 500;
+            overflow-y: auto;
+        }
+        .modal.open { display: block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-inner { max-width: 1100px; margin: 0 auto; padding: 5rem 2rem 4rem; }
+        .modal-close {
+            position: fixed;
+            top: 1.5rem;
+            right: 1.5rem;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.3s;
+            z-index: 600;
+        }
+        .modal-close:hover { background: var(--accent); border-color: var(--accent); transform: rotate(90deg); }
+        .modal-eyebrow { font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.8rem; }
+        .modal-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(3rem, 7vw, 5.5rem); font-weight: 700; color: var(--paper); line-height: 1; margin-bottom: 0.5rem; }
+        .modal-meta { font-size: 1rem; color: var(--muted); font-style: italic; margin-bottom: 2.5rem; }
+        .modal-story { border-left: 3px solid var(--accent); padding: 1.2rem 1.5rem; background: rgba(255,255,255,0.04); margin-bottom: 3rem; }
+        .modal-story p { font-size: 1.05rem; line-height: 1.85; color: #B0A898; }
+        .modal-photos-label { font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-bottom: 1.5rem; }
+        .modal-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1rem; }
+        .gallery-thumb { aspect-ratio: 4/3; overflow: hidden; cursor: pointer; position: relative; }
+        .gallery-thumb img, .gallery-thumb video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; display: block; }
+        .gallery-thumb:hover img, .gallery-thumb:hover video { transform: scale(1.08); }
+        .gallery-thumb-cap { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem 1rem 0.8rem; background: linear-gradient(transparent, rgba(0,0,0,0.72)); color: white; font-size: 0.78rem; opacity: 0; transition: opacity 0.3s; }
+        .gallery-thumb:hover .gallery-thumb-cap { opacity: 1; }
+        .no-photos { padding: 2.5rem; text-align: center; border: 1px dashed rgba(255,255,255,0.1); }
+        .no-photos p { color: var(--muted); font-size: 0.92rem; line-height: 1.75; }
+        .no-photos code { background: rgba(255,255,255,0.08); padding: 0.1em 0.4em; border-radius: 3px; font-size: 0.85em; color: var(--accent); }
+
+        /* Itinerary Styles */
+        .modal-itinerary {
+            margin-top: 3rem;
+            padding-top: 3rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .itinerary-label {
+            font-size: 0.72rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+        .itinerary-timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+        .itinerary-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.75rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, var(--accent), transparent);
+        }
+        .itinerary-day {
+            position: relative;
+            margin-bottom: 3rem;
+        }
+        .itinerary-day::before {
+            content: '';
+            position: absolute;
+            left: -2.25rem;
+            top: 0.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid var(--ink);
+        }
+        .itinerary-day-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        .itinerary-day-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            line-height: 1;
+        }
+        .itinerary-day-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--paper);
+            flex: 1;
+        }
+        .itinerary-day-date {
+            font-size: 0.75rem;
+            color: var(--muted);
+            letter-spacing: 0.05em;
+        }
+        .itinerary-activities {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        .itinerary-activities li {
+            padding: 0.4rem 0;
+            color: #B0A898;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .itinerary-activities li::before {
+            content: '→';
+            color: var(--accent);
+            margin-right: 0.5rem;
+            font-weight: 600;
+        }
+        .itinerary-accommodation {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.82rem;
+            color: var(--muted);
+            margin-top: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+        .itinerary-accommodation::before {
+            content: '🏨';
+            font-size: 0.9rem;
+        }
+        .itinerary-notes {
+            margin-top: 0.8rem;
+            padding: 0.8rem 1rem;
+            background: rgba(196, 98, 45, 0.1);
+            border-left: 3px solid var(--accent);
+            font-size: 0.88rem;
+            color: #B0A898;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 1000; align-items: center; justify-content: center; }
+        .lightbox.open { display: flex; }
+        .lightbox img, .lightbox video { max-width: 92vw; max-height: 92vh; object-fit: contain; }
+        .lightbox-close { position: fixed; top: 1.5rem; right: 1.5rem; background: white; color: black; border: none; width: 42px; height: 42px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; }
+
+        /* ── MAP SECTION ── */
+        .map-section {
+            background: var(--ink);
+            padding: 5rem 2rem;
+        }
+        .map-section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .map-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .map-heading {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            color: var(--paper);
+            margin-bottom: 0.5rem;
+        }
+        .map-subheading {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin-bottom: 2.5rem;
+        }
+        #travelMap {
+            width: 100%;
+            height: 500px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        /* Leaflet overrides to match dark theme */
+        .leaflet-tile-pane { filter: grayscale(30%) brightness(0.85); }
+        .leaflet-popup-content-wrapper {
+            background: var(--ink);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 0;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            color: var(--paper);
+        }
+        .leaflet-popup-tip { background: var(--ink); }
+        .leaflet-popup-content { margin: 1rem 1.2rem; }
+        .map-popup-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--paper);
+            margin-bottom: 0.2rem;
+        }
+        .map-popup-sub { font-size: 0.78rem; color: var(--muted); margin-bottom: 0.5rem; }
+        .map-popup-date { font-size: 0.72rem; letter-spacing: 0.08em; color: var(--accent); text-transform: uppercase; }
+        .map-pin-count {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            font-size: 0.8rem;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+        }
+        .map-pin-count span {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.4rem;
+            color: var(--paper);
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer { background: var(--ink); border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem; text-align: center; color: var(--muted); font-size: 0.78rem; letter-spacing: 0.05em; }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 640px) {
+            .trips-row { grid-template-columns: 1fr; }
+            .modal-gallery { grid-template-columns: 1fr; }
+            .years-grid { grid-template-columns: 1fr; }
+            .year-view-stats { gap: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ══ HOME VIEW ══ -->
+<div class="view active" id="view-home">
+    <section class="home-hero">
+        <div class="home-hero-bg">✈</div>
+        <p class="home-eyebrow">My Travel Portfolio</p>
+        <h1>The Journey</h1>
+        <p>Every year, a new chapter.</p>
+        <div class="home-scroll-cue">
+            <div class="home-scroll-line"></div>
+            Browse years
+        </div>
+    </section>
+
+    <!-- MAP -->
+    <section class="map-section">
+        <div class="map-section-inner">
+            <p class="map-label">World Map</p>
+            <h2 class="map-heading">Places I've Been</h2>
+            <p class="map-subheading">Click any pin to see trip details</p>
+            <div id="travelMap"></div>
+            <div class="map-pin-count"><span id="mapPinCount">0</span>&nbsp;destinations across all years</div>
+        </div>
+    </section>
+
+    <section class="years-section">
+        <p class="years-section-label">All Years</p>
+        <div class="years-grid" id="yearsGrid"></div>
+    </section>
+
+    <footer>My Travel Portfolio · All Years</footer>
+</div>
+
+<!-- ══ YEAR VIEW ══ -->
+<div class="view" id="view-year">
+    <div class="year-view-header">
+        <button class="back-btn" onclick="showHome()">← All Years</button>
+        <div class="year-view-bg-num" id="yBgNum"></div>
+        <div class="year-view-header-inner">
+            <div>
+                <h1 class="year-view-title" id="yTitle"></h1>
+                <p class="year-view-sub" id="yTagline"></p>
+            </div>
+            <div class="year-view-stats" id="yStats"></div>
+        </div>
+    </div>
+
+    <nav class="month-nav">
+        <div class="month-nav-inner">
+            <span class="month-nav-year" id="yNavYear"></span>
+            <div class="month-pills" id="yMonthPills"></div>
+        </div>
+    </nav>
+
+    <div class="timeline-body" id="yTimeline"></div>
+
+    <footer id="yFooter"></footer>
+</div>
+
+<!-- ══ TRIP MODAL ══ -->
+<div class="modal" id="tripModal">
+    <button class="modal-close" onclick="closeModal()">×</button>
+    <div class="modal-inner">
+        <p class="modal-eyebrow" id="mDate"></p>
+        <h2 class="modal-title" id="mTitle"></h2>
+        <p class="modal-meta" id="mMeta"></p>
+        <div class="modal-story" id="mStory"></div>
+        
+        <!-- Itinerary Section -->
+        <div class="modal-itinerary" id="mItinerary" style="display:none;">
+            <p class="itinerary-label">Day-by-Day Itinerary</p>
+            <div class="itinerary-timeline" id="mItineraryContent"></div>
+        </div>
+        
+        <p class="modal-photos-label" id="mPhotosLabel"></p>
+        <div id="mGallery"></div>
+    </div>
+</div>
+
+<!-- ══ LIGHTBOX ══ -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">×</button>
+    <div id="lightboxContent"></div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   TRAVEL DATA
+   ───────────────────────────────────────────────────────────
+   HOW TO ADD A NEW YEAR:
+   1. Copy the block below starting with { year: XXXX, ... }
+   2. Paste it into the travelData array
+   3. Fill in your trips
+
+   HOW TO ADD A TRIP:
+   - id: unique string (no spaces)
+   - month: 1–12
+   - date: display string e.g. "July 4–7, 2023"
+   - title: destination name
+   - subtitle: region or occasion
+   - cover: URL to a cover photo (Imgur link), or null
+   - story: a short paragraph about the trip
+   - appleAlbum: name of your Apple Photos album (just a reminder label)
+   - gallery: array of { src: 'URL', caption: 'text' } — leave [] until you add photos
+
+   HOW TO ADD A PHOTO:
+   gallery: [
+     { src: 'https://i.imgur.com/abc123.jpg', caption: 'Sunset at the beach' },
+     { src: 'https://i.imgur.com/xyz456.jpg', caption: 'Mountain view' },
+   ]
+═══════════════════════════════════════════════════════════ */
+
+const travelData = [
+
+    // ──────────────────────────────────────────────────────
+    // 2026
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2026,
+        tagline: 'The journey continues.',
+        trips: [
+            {
+                id: 'newport-2026',
+                month: 1, date: 'January 2026',
+                title: 'Newport', subtitle: 'Rhode Island',
+                cover: null, appleAlbum: null,
+                story: 'A winter escape to Newport — historic mansions, ocean views, and coastal New England charm.',
+                gallery: []
+            },
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2025
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2025,
+        tagline: 'Sixteen trips. Countless memories.',
+        trips: [
+            {
+                id: 'mahabaleshwar-2025',
+                month: 1, date: 'January 2025',
+                title: 'Mahabaleshwar', subtitle: 'Maharashtra, India',
+                cover: null, appleAlbum: null,
+                story: 'A refreshing escape to Mahabaleshwar — rolling green hills, strawberry farms, panoramic valley viewpoints, and cool mountain air.',
+                gallery: []
+            },
+            {
+                id: 'miami-2025',
+                month: 2, date: 'February 2025',
+                title: 'Miami', subtitle: 'Florida · TD Pinnacle Trip',
+                cover: null, appleAlbum: 'Miami 2025',
+                story: 'The TD Pinnacle trip brought us to Miami — sun, ocean air, and a group of people who made it unforgettable.',
+                gallery: []
+            },
+            {
+                id: 'livingston-manor-2025',
+                month: 2, date: 'February 2025',
+                title: 'Livingston Manor', subtitle: 'Upstate New York',
+                cover: null, appleAlbum: 'Livingston Manor',
+                story: 'A winter getaway to the Catskills — cozy cabins, snow-dusted trees, and the quiet of upstate New York.',
+                gallery: []
+            },
+            {
+                id: 'los-angeles-2025',
+                month: 3, date: 'March 2025',
+                title: 'Los Angeles', subtitle: 'California · Kanak & Sharan\'s Wedding',
+                cover: null, appleAlbum: null,
+                story: 'Celebrated Kanak & Sharan\'s wedding in the warmth of Los Angeles. Love, sunshine, and golden hour celebrations.',
+                gallery: []
+            },
+            {
+                id: 'dc-2025',
+                month: 3, date: 'March 29–30, 2025',
+                title: 'Washington, DC', subtitle: 'Cherry Springs with Tiny',
+                cover: null, appleAlbum: 'DC Trip Mar \'25',
+                story: 'A quick trip to DC with Tiny — cherry blossoms in full bloom, iconic monuments, and spring finally in the air.',
+                gallery: []
+            },
+            {
+                id: 'ac-may-2025',
+                month: 5, date: 'May 17–18, 2025',
+                title: 'Atlantic City', subtitle: 'Sunidhi Chauhan Concert',
+                cover: null, appleAlbum: 'Atlantic City May \'25',
+                story: 'A spontaneous trip for Sunidhi Chauhan live — her voice filling the arena, the boardwalk at night, and memories made with great company.',
+                gallery: []
+            },
+            {
+                id: 'utah-2025',
+                month: 5, date: 'May 24–28, 2025',
+                title: 'Utah', subtitle: 'Arches · Canyonlands · Monument Valley · Zion',
+                cover: null, appleAlbum: 'T&Ms First Trip',
+                story: 'T&M\'s first big road trip together — five days through four national parks. Red arches, carved canyons, ancient mesas, and Angel\'s Landing. The American Southwest at its most breathtaking.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'May 24, 2025',
+                        title: 'Arrival in Salt Lake City',
+                        activities: [
+                            'Land at Salt Lake City International Airport',
+                            'Pick up rental car',
+                            'Evening: Settle in and rest'
+                        ],
+                        accommodation: 'Salt Lake City',
+                        notes: null
+                    },
+                    {
+                        day: 2,
+                        date: 'May 25, 2025',
+                        title: 'Arches National Park',
+                        activities: [
+                            'Morning: Drive to Arches National Park',
+                            'Hike to Double Arch',
+                            'Explore Windows section',
+                            'Sunset: Delicate Arch hike'
+                        ],
+                        accommodation: 'Moab area',
+                        notes: 'Delicate Arch at sunset is absolutely stunning — don\'t miss it!'
+                    },
+                    {
+                        day: 3,
+                        date: 'May 26, 2025',
+                        title: 'Canyonlands & Monument Valley',
+                        activities: [
+                            'Morning: Visit Canyonlands National Park',
+                            'Hike to Mesa Arch',
+                            'Afternoon: Drive to Monument Valley',
+                            'Evening: Watch the beautiful sunset over the valley'
+                        ],
+                        accommodation: 'The View Hotel, Monument Valley',
+                        notes: 'Staying at The View Hotel — wake up to iconic Monument Valley views from your room'
+                    },
+                    {
+                        day: 4,
+                        date: 'May 27, 2025',
+                        title: 'Monument Valley & Zion',
+                        activities: [
+                            'Early morning: Sunrise at Monument Valley',
+                            'Guided tour of the valley with a local Navajo guide',
+                            'Afternoon: Drive to Zion National Park',
+                            'Evening: Check in and explore the area'
+                        ],
+                        accommodation: 'AutoCamp Zion',
+                        notes: 'The Navajo-guided tour gives incredible cultural context and access to restricted areas'
+                    },
+                    {
+                        day: 5,
+                        date: 'May 28, 2025',
+                        title: 'The Narrows at Zion',
+                        activities: [
+                            'Morning: Hike The Narrows in Zion',
+                            'Afternoon: Relax and explore AutoCamp',
+                            'Evening: Enjoy the surroundings at AutoCamp Zion'
+                        ],
+                        accommodation: 'AutoCamp Zion',
+                        notes: 'The Narrows is a must-do — wading through the Virgin River surrounded by towering canyon walls'
+                    },
+                    {
+                        day: 6,
+                        date: 'May 29, 2025',
+                        title: 'Las Vegas & Return Home',
+                        activities: [
+                            'Morning: Drive to Las Vegas',
+                            'Afternoon: Explore the Strip',
+                            'Evening: Flight back to Newark (EWR)'
+                        ],
+                        accommodation: null,
+                        notes: null
+                    }
+                ]
+            },
+            {
+                id: 'lake-george-2025',
+                month: 6, date: 'June 2025',
+                title: 'Lake George', subtitle: 'Upstate New York',
+                cover: null, appleAlbum: null,
+                story: 'Summer on the shores of Lake George — crystal clear water, boat rides, and the best kind of slow days.',
+                gallery: []
+            },
+            {
+                id: 'ac-aug-2025',
+                month: 8, date: 'August 2025',
+                title: 'Atlantic City', subtitle: 'T&M First Family Trip',
+                cover: null, appleAlbum: null,
+                story: 'A milestone — T&M\'s first family trip to Atlantic City. Boardwalk games, ocean breezes, and making memories together.',
+                gallery: []
+            },
+            {
+                id: 'menlo-park-2025',
+                month: 8, date: 'August 18–22, 2025',
+                title: 'Menlo Park', subtitle: 'California · Meta Onboarding',
+                cover: null, appleAlbum: null,
+                story: 'A new chapter begins. Flying out to Menlo Park for Meta onboarding — Silicon Valley energy, the Meta campus, and the start of something big.',
+                gallery: []
+            },
+            {
+                id: 'bear-mountain-2025',
+                month: 9, date: 'September 1, 2025',
+                title: 'Bear Mountain', subtitle: 'Bhakti\'s First Hike',
+                cover: null, appleAlbum: null,
+                story: 'A special day — Bhakti\'s very first hike at Bear Mountain. Forest trails, panoramic views, and the pride of reaching the top together.',
+                gallery: []
+            },
+            {
+                id: 'noblesville-2025',
+                month: 11, date: 'November 1–2, 2025',
+                title: 'Noblesville', subtitle: 'Indiana · Madeline & Akash\'s Wedding',
+                cover: null, appleAlbum: 'MadelineAkash Indiana',
+                story: 'A beautiful fall wedding in Indiana. Madeline & Akash\'s big day — heartfelt vows, autumn colors, and dancing into the night.',
+                gallery: []
+            },
+            {
+                id: 'bangalore-2025',
+                month: 12, date: 'December 6–8, 2025',
+                title: 'Bangalore', subtitle: 'India · Kerru & Lakshana\'s Wedding',
+                cover: null, appleAlbum: null,
+                story: 'Back to India for Kerru & Lakshana\'s wedding in Bangalore — traditional rituals, vibrant colors, and the warmth of a South Indian celebration.',
+                gallery: []
+            },
+            {
+                id: 'sarangpur-2025',
+                month: 12, date: 'December 16, 2025',
+                title: 'Sarangpur', subtitle: 'Gujarat · Hanuman Temple',
+                cover: null, appleAlbum: null,
+                story: 'A spiritual stop at the revered Kashtabhanjan Hanuman Temple in Sarangpur — peace, devotion, and a moment of stillness at year\'s end.',
+                gallery: []
+            },
+            {
+                id: 'bhopal-2025',
+                month: 12, date: 'December 25, 2025',
+                title: 'Bhopal', subtitle: 'Madhya Pradesh · Tanvi\'s Nani\'s House',
+                cover: null, appleAlbum: null,
+                story: 'Christmas spent at Tanvi\'s nani\'s house in Bhopal — home-cooked meals, family stories, and the simple joy of being together.',
+                gallery: []
+            },
+            {
+                id: 'nagpur-2025',
+                month: 12, date: 'December 26–27, 2025',
+                title: 'Nagpur', subtitle: 'Maharashtra · Tanvi\'s House',
+                cover: null, appleAlbum: null,
+                story: 'The final stop of 2025 — Nagpur, wrapping up the year surrounded by family, good food, and the warmth of home.',
+                gallery: []
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2024
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2024,
+        tagline: 'Adventures across continents.',
+        trips: [
+            {
+                id: 'grenada-2024',
+                month: 1, date: 'January 2024',
+                title: 'Grenada', subtitle: 'Caribbean',
+                cover: null, appleAlbum: null,
+                story: 'Pristine beaches, spice markets, and the laid-back island life of Grenada.',
+                gallery: []
+            },
+            {
+                id: 'gujarat-2024',
+                month: 2, date: 'February 2024',
+                title: 'Gujarat', subtitle: 'Sarangpur · Dhari · Somnath',
+                cover: null, appleAlbum: null,
+                story: 'A journey through Gujarat — sacred temples, coastal beauty, and the heart of western India.',
+                gallery: []
+            },
+            {
+                id: 'pennsylvania-2024',
+                month: 4, date: 'April 2024',
+                title: 'Pennsylvania', subtitle: '27th Birthday Trip',
+                cover: null, appleAlbum: null,
+                story: 'Celebrating 27 in Pennsylvania — a special trip to mark another year of life and adventure.',
+                gallery: []
+            },
+            {
+                id: 'mexico-2024',
+                month: 5, date: 'May 2024',
+                title: 'Mexico', subtitle: 'Cancún & Tulum',
+                cover: null, appleAlbum: 'Mexico 24',
+                story: 'Ocho Amigos in Mexico — turquoise cenotes, ancient Mayan pyramids, scuba diving in the Caribbean, and unforgettable beach clubs. Eight friends, four days of adventure.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'May 2024',
+                        title: 'Arrival in Tulum',
+                        activities: [
+                            'Afternoon: Land at Tulum airport',
+                            'Shuttle to Tulum downtown (175 pesos per person)',
+                            'Lunch at Antojitos La Chiapaneca - local Mexican food',
+                            'Check into Airbnb',
+                            'Visit Sfer Ik Tulum - nature-inspired art museum',
+                            'Dinner at Taboo Beach Club - incredible experience'
+                        ],
+                        accommodation: 'Airbnb in Tulum',
+                        notes: 'Sfer Ik is a must-visit — art created with natural light, nature sounds, bamboo, and sustainable materials. Taboo was a great dinner spot!'
+                    },
+                    {
+                        day: 2,
+                        date: 'May 2024',
+                        title: 'Gran Cenote & Tulum Beaches',
+                        activities: [
+                            'Morning: Try to pick up rental car (Hertz & Avis both out of cars)',
+                            'Take cab to Gran Cenote',
+                            'Snorkeling with sea turtles in the cenote',
+                            'Explore underwater caves',
+                            'Lunch at Encanto in Tulum downtown',
+                            'Shopping around downtown stores',
+                            'Rent scooters',
+                            'Paradise Beach closed at 5PM (entry closes before beach)',
+                            'Sunset at Playa Mirador viewpoint',
+                            'Dip feet in Caribbean Sea',
+                            'Dinner at RosaNegra'
+                        ],
+                        accommodation: 'Airbnb in Tulum',
+                        notes: 'Gran Cenote was beautiful — super refreshing water, met sea turtles swimming up close! Entry was 500 MXN (cash only). The caves were unreal.'
+                    },
+                    {
+                        day: 3,
+                        date: 'May 2024',
+                        title: 'Chichén Itzá & Drive to Cancún',
+                        activities: [
+                            'Morning: Successfully get rental cars (after 1 hour wait)',
+                            'Drive to Chichén Itzá',
+                            'Stop at local shop for hand-painted porcelain souvenirs',
+                            'Lunch in Valladolid',
+                            'Tour of Chichén Itzá with official guide (40°C heat!)',
+                            'Learn why it\'s a Wonder of the World',
+                            'Refreshing dive at Ik Kil Cenote',
+                            'Drive to Cancún',
+                            'Check into Cancún Airbnb',
+                            'Dinner at Ilios Beach Club'
+                        ],
+                        accommodation: 'Airbnb in Cancún',
+                        notes: 'Highly recommend getting official tour guide at Chichén Itzá — truly exceptional! Parking is 116 MXN. Buy Ik Kil cenote tickets at Chichén Itzá entrance to skip lines.'
+                    },
+                    {
+                        day: 4,
+                        date: 'May 2024',
+                        title: 'Scuba Diving & Coco Bongo',
+                        activities: [
+                            'Morning: Discover Scuba experience - first time diving!',
+                            'Dive 1: Underwater museum',
+                            'Dive 2: Reef Manchones',
+                            'See magical sea life and colorful fish',
+                            'Lunch at La Parilla (Plaza La Isla mall)',
+                            'Ice cream at Aldo\'s',
+                            'Afternoon nap after exhausting diving',
+                            'Evening: Party at Coco Bongo!'
+                        ],
+                        accommodation: 'Airbnb in Cancún',
+                        notes: 'Best day of the trip! First time scuba diving — the underwater world was simply magical. Different colored fish were so beautiful! Coco Bongo is a must-visit for nightlife in Cancún.'
+                    }
+                ]
+            },
+            {
+                id: 'montauk-2024',
+                month: 6, date: 'June 2024',
+                title: 'Montauk', subtitle: 'Long Island · Meeting Gurusharanandji Maharaj',
+                cover: null, appleAlbum: null,
+                story: 'A day trip to Montauk for a spiritual meeting — ocean breezes and moments of reflection.',
+                gallery: []
+            },
+            {
+                id: 'watkins-glen-2024',
+                month: 6, date: 'June 2024',
+                title: 'Watkins Glen State Park', subtitle: 'New York',
+                cover: null, appleAlbum: 'Watkins Glen State Park',
+                story: 'Hiking through gorges, waterfalls cascading beside stone steps, and the natural beauty of upstate New York.',
+                gallery: []
+            },
+            {
+                id: 'ac-july-2024',
+                month: 7, date: 'July 2024',
+                title: 'Atlantic City', subtitle: 'Atif Aslam Concert',
+                cover: null, appleAlbum: null,
+                story: 'An unforgettable night with Atif Aslam live — his voice, the crowd, and the magic of music.',
+                gallery: []
+            },
+            {
+                id: 'california-2024',
+                month: 8, date: 'August 2024',
+                title: 'California', subtitle: 'Bay Area · Lake Tahoe · Pismo Beach with Parents',
+                cover: null, appleAlbum: null,
+                story: 'A California tour with my parents — mountain lakes, coastal drives, and quality time together.',
+                gallery: []
+            },
+            {
+                id: 'upstate-fall-2024',
+                month: 10, date: 'October 2024',
+                title: 'Upstate New York', subtitle: 'Fall Trip with Apple Picking',
+                cover: null, appleAlbum: null,
+                story: 'Autumn in upstate — crisp air, colorful leaves, and apple orchards heavy with fruit.',
+                gallery: []
+            },
+            {
+                id: 'arizona-2024',
+                month: 11, date: 'November 2024',
+                title: 'Arizona', subtitle: 'Desert Southwest',
+                cover: null, appleAlbum: 'Arizona',
+                story: 'Red rock canyons of Sedona, the majestic slot canyons of Antelope, and the iconic Horseshoe Bend — Arizona\'s desert beauty at its finest.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'November 8, 2024',
+                        title: 'Arrival in Phoenix',
+                        activities: [
+                            'Evening arrival in Phoenix',
+                            'Explore Phoenix downtown',
+                            'Check into hotel near airport'
+                        ],
+                        accommodation: 'Hotel near Phoenix Airport',
+                        notes: null
+                    },
+                    {
+                        day: 2,
+                        date: 'November 9, 2024',
+                        title: 'Sedona - Devil\'s Bridge',
+                        activities: [
+                            'Morning: Drive to Sedona',
+                            'Arrive around lunch time',
+                            'Afternoon: Devil\'s Bridge hike - must do!',
+                            'Explore Sedona red rock formations',
+                            'Evening in Sedona'
+                        ],
+                        accommodation: 'Sedona Pines Resort',
+                        notes: 'Devil\'s Bridge is a must-do hike — iconic natural arch with stunning views of Sedona\'s red rocks'
+                    },
+                    {
+                        day: 3,
+                        date: 'November 10, 2024',
+                        title: 'Sedona to Page',
+                        activities: [
+                            'Morning: Explore Sedona',
+                            'Additional hikes or viewpoints',
+                            'Afternoon: Drive to Page',
+                            'Scenic drive through Arizona',
+                            'Evening: Arrive in Page'
+                        ],
+                        accommodation: 'Airbnb in Page',
+                        notes: 'The drive from Sedona to Page offers incredible desert landscapes'
+                    },
+                    {
+                        day: 4,
+                        date: 'November 11, 2024',
+                        title: 'Antelope Canyon & Horseshoe Bend',
+                        activities: [
+                            'Morning: Antelope Canyon tour',
+                            'Navigate the stunning slot canyon',
+                            'Famous light beams (if timing is right)',
+                            'Afternoon: Horseshoe Bend',
+                            'Iconic Colorado River overlook',
+                            'Evening: Drive to Glendale/Phoenix area'
+                        ],
+                        accommodation: 'Airbnb in Glendale',
+                        notes: 'Antelope Canyon is otherworldly — the light filtering through the narrow slot canyon creates magical colors and shadows'
+                    },
+                    {
+                        day: 5,
+                        date: 'November 12, 2024',
+                        title: 'Phoenix & Departure',
+                        activities: [
+                            'Morning: Leisure in Glendale',
+                            'Afternoon: Explore Phoenix downtown',
+                            'City exploration and shopping',
+                            'Evening: Departure or final night'
+                        ],
+                        accommodation: 'Airbnb in Glendale',
+                        notes: null
+                    }
+                ]
+            },
+            {
+                id: 'cape-cod-2024',
+                month: 11, date: 'November 2024',
+                title: 'Cape Cod', subtitle: 'AutoCamp',
+                cover: null, appleAlbum: null,
+                story: 'A cozy AutoCamp stay on Cape Cod — ocean waves, beach walks, and modern camping comfort.',
+                gallery: []
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2023
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2023,
+        tagline: 'From national parks to European cities.',
+        trips: [
+            {
+                id: 'poconos-2023',
+                month: 1, date: 'January 2023',
+                title: 'Poconos', subtitle: 'Pennsylvania · Ski Trip',
+                cover: null, appleAlbum: null,
+                story: 'First ski trip of the year in the Poconos — fresh powder, mountain air, and winter adventures.',
+                gallery: []
+            },
+            {
+                id: 'nj-getaway-2023',
+                month: 2, date: 'February 2023',
+                title: 'New Jersey', subtitle: 'Weekend Getaway with Tiny',
+                cover: null, appleAlbum: null,
+                story: 'A quiet weekend escape in New Jersey — time away from the city with Tiny.',
+                gallery: []
+            },
+            {
+                id: 'portugal-2023',
+                month: 2, date: 'February 2023',
+                title: 'Portugal', subtitle: 'Lisbon · Porto · Algarve',
+                cover: null, appleAlbum: 'Portugal \'23',
+                story: 'Exploring Portugal — pastel buildings, seaside cliffs, port wine, and the warmth of Portuguese hospitality. Five years since my last Europe trip, and it was time to venture beyond the US. Portugal turned out to be one of the most beautiful countries — affordable, historic, and perfectly preserved.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'February 15, 2023',
+                        title: 'Arrival in Lisbon',
+                        activities: [
+                            'Early morning arrival from New York',
+                            'Check into Home Lisbon Hostel (Baixa-Chiado)',
+                            'Breakfast at Cafe Janis - croissants and coffee',
+                            'Walking tour through cobbled streets',
+                            'Ride the historic Tram 28',
+                            'Visit Santa Justa Elevator for panoramic city views',
+                            'Lunch at Geographia - Vegetarian Goan Curry',
+                            'Evening: Sunset at Miradouro de Santa Catarina',
+                            'Dinner at TimeOut Market',
+                            'Dessert: Pastel de Nata at Manteigaria'
+                        ],
+                        accommodation: 'Home Lisbon Hostel',
+                        notes: 'First photo on cobbled streets - just as I expected! The tiles everywhere are stunning.'
+                    },
+                    {
+                        day: 2,
+                        date: 'February 16, 2023',
+                        title: 'Belém & Alfama District',
+                        activities: [
+                            'Morning: Take metro to Belém',
+                            'Visit Torre de Belém (viewed from outside)',
+                            'Walk along the waterfront',
+                            'Explore Jerónimos Monastery - magnificent artwork and detailing',
+                            'Must-visit: Pastéis de Belém for authentic pastel de nata',
+                            'Lunch: Pizza in Alfama district',
+                            'Afternoon: Explore Alfama - cafes and shops',
+                            'Sunset at Castelo de São Jorge - 360° panoramic views',
+                            'Evening: Dinner in Alfama',
+                            'Nightlife at Pink Street - live music and bustling atmosphere'
+                        ],
+                        accommodation: 'Home Lisbon Hostel',
+                        notes: 'The monastery restoration is remarkable - they preserved the old aesthetics perfectly. Best sunset I\'ve ever seen from the castle!'
+                    },
+                    {
+                        day: 3,
+                        date: 'February 17, 2023',
+                        title: 'Algarve Coast Day Trip',
+                        activities: [
+                            'Early morning: Pick up rental car from airport',
+                            'Drive to Portimão',
+                            'Boat tour to Benagil Caves cancelled due to weather',
+                            'Visit Algar Seco - absolutely magical coastal views',
+                            'Lunch at Earth Cafe',
+                            'Benagil Caves viewpoint from the top - stunning',
+                            'Explore accessible beach between rock structures',
+                            'Drive back to Lisbon',
+                            'Evening: Hostel dinner with travelers from around the world',
+                            'Live Fado music performance'
+                        ],
+                        accommodation: 'Home Lisbon Hostel',
+                        notes: 'The Algarve coast is magical! Even though we couldn\'t do the boat tour, the views from above were incredible. Strong tides hitting the rocks - such a different experience.'
+                    },
+                    {
+                        day: 4,
+                        date: 'February 18, 2023',
+                        title: 'Porto - Wine Cellars & Francesinha',
+                        activities: [
+                            'Early morning flight to Porto',
+                            'Check into Porto hostel',
+                            'Lunch in Porto',
+                            'Afternoon: Walking tour of Port Wine Cellars in Vila Nova de Gaia',
+                            'Learn about Port wine production',
+                            'Cross the Douro River bridge',
+                            'Dinner: Francesinha at Cafe Santiago - the famous sandwich with secret sauce',
+                            'Evening: Pub crawl with international travelers'
+                        ],
+                        accommodation: 'Porto Hostel',
+                        notes: 'Meeting travelers from across the globe - this reminded me of my undergrad days! The francesinha was interesting - cheese sandwich with fried egg, all dipped in their secret sauce.'
+                    },
+                    {
+                        day: 5,
+                        date: 'February 19, 2023',
+                        title: 'Exploring Porto',
+                        activities: [
+                            'Breakfast at hostel',
+                            'Join walking tour of Porto - viewpoints, forts, castles',
+                            'Learn the city\'s rich history',
+                            'Lunch at Tapabento - potato taco and Nasi Goreng',
+                            'Visit Clérigos Tower - climb to top for panoramic views',
+                            'Walk inside the walls of the historic church',
+                            'Livraria Lello - the most beautiful library in the world (Harry Potter vibes!)',
+                            'Sunset at Palácio de Cristal gardens',
+                            'Dinner at Casa Guedes - famous sandwiches',
+                            'Final pastel de nata for dessert',
+                            'Evening: Festival on the streets - singing and dancing',
+                            'Peaceful end at Douro River waterfront'
+                        ],
+                        accommodation: 'Porto Hostel',
+                        notes: 'Livraria Lello felt like stepping into Harry Potter! The walking tour taught us so much about the city\'s history. What a perfect ending to the trip.'
+                    },
+                    {
+                        day: 6,
+                        date: 'February 20, 2023',
+                        title: 'Return to New York',
+                        activities: [
+                            'Morning flight back to NYC',
+                            'End of an unforgettable journey'
+                        ],
+                        accommodation: null,
+                        notes: 'Five power-packed days! Such a different type of trip that was much needed. Europe, I\'ll be back!'
+                    }
+                ]
+            },
+            {
+                id: 'puerto-rico-2023',
+                month: 4, date: 'April 2023',
+                title: 'Puerto Rico', subtitle: 'Caribbean',
+                cover: null, appleAlbum: 'Puerto Rico',
+                story: 'Rainforest hikes, bioluminescent bays, and the vibrant culture of Puerto Rico.',
+                gallery: []
+            },
+            {
+                id: 'pittsburgh-2023',
+                month: 5, date: 'May 2023',
+                title: 'Pittsburgh', subtitle: 'CMU · Parth Choksi\'s Graduation',
+                cover: null, appleAlbum: null,
+                story: 'Back to Pittsburgh for Parth\'s CMU graduation — celebrating success and old friendships.',
+                gallery: []
+            },
+            {
+                id: 'cherry-springs-2023',
+                month: 5, date: 'May 2023',
+                title: 'Cherry Springs State Park', subtitle: 'Pennsylvania · First T&M Short Trip',
+                cover: null, appleAlbum: null,
+                story: 'Our first short trip together to Cherry Springs — stargazing under some of the darkest skies in the East.',
+                gallery: []
+            },
+            {
+                id: 'hillsboro-2023',
+                month: 5, date: 'May 2023',
+                title: 'Hillsboro', subtitle: 'Oregon · Visiting Ria',
+                cover: null, appleAlbum: null,
+                story: 'Flew to Oregon to visit Ria in Hillsboro — Pacific Northwest charm and quality time with friends.',
+                gallery: []
+            },
+            {
+                id: 'seattle-2023',
+                month: 5, date: 'May 2023',
+                title: 'Seattle & Cascades', subtitle: 'North Cascades · Mt Rainier · Seattle',
+                cover: null, appleAlbum: 'PacificNorthWest',
+                story: 'Camping in the North Cascades, marveling at Mount Rainier, and exploring the vibrant city of Seattle.',
+                gallery: []
+            },
+            {
+                id: 'lake-george-2023',
+                month: 6, date: 'June 2023',
+                title: 'Lake George', subtitle: 'Upstate New York',
+                cover: null, appleAlbum: null,
+                story: 'Summer at Lake George — swimming, boating, and lakeside relaxation.',
+                gallery: []
+            },
+            {
+                id: 'acadia-2023',
+                month: 7, date: 'July 2023',
+                title: 'Acadia National Park', subtitle: 'Maine',
+                cover: null, appleAlbum: null,
+                story: 'Sunrise from Cadillac Mountain, rocky coastlines, and the rugged beauty of Acadia.',
+                gallery: []
+            },
+            {
+                id: 'michigan-chicago-2023',
+                month: 9, date: 'September 2023',
+                title: 'Michigan & Chicago', subtitle: 'Road Trip Around Lake Michigan',
+                cover: null, appleAlbum: 'Michigan-Chicago Trip',
+                story: 'A scenic road trip circling Lake Michigan — beaches, cities, and the great American Midwest.',
+                gallery: []
+            },
+            {
+                id: 'spain-2023',
+                month: 9, date: 'September–October 2023',
+                title: 'Spain', subtitle: 'Adit\'s Bachelor Trip',
+                cover: null, appleAlbum: 'Spain Best',
+                story: 'An epic bachelor trip through Spain — tapas, flamenco, historic streets, and unforgettable nights.',
+                gallery: []
+            },
+            {
+                id: 'new-hampshire-2023',
+                month: 10, date: 'October 2023',
+                title: 'New Hampshire', subtitle: 'Fall Trip',
+                cover: null, appleAlbum: null,
+                story: 'Fall foliage in New Hampshire — fiery reds and golds painting the mountains.',
+                gallery: []
+            },
+            {
+                id: 'miami-2023',
+                month: 11, date: 'November 2023',
+                title: 'Miami', subtitle: 'Biscayne National Park · First Paddleboarding',
+                cover: null, appleAlbum: 'Miami 2023',
+                story: 'Exploring Biscayne National Park and trying paddleboarding for the first time — ocean adventures in Miami.',
+                gallery: []
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2022
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2022,
+        tagline: 'A year of firsts and family.',
+        trips: [
+            {
+                id: 'colorado-2022',
+                month: 2, date: 'February 2022',
+                title: 'Colorado', subtitle: 'First Skiing · Snowmobile · Rocky Mountain NP',
+                cover: null, appleAlbum: null,
+                story: 'White Colorado — my first experience with snow and winter activities. From snowshoeing to skiing, this trip was packed with firsts. Colorado is known as Colorful Colorado, but we only saw white — a blanket of snow everywhere.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 0,
+                        date: 'February 16, 2022',
+                        title: 'Arrival in Denver',
+                        activities: [
+                            'Evening flight from Newark',
+                            'Landed at Denver International Airport during a snow storm',
+                            'Wait 30 minutes while runway is cleared',
+                            'Pick up rental car from Enterprise',
+                            'Check into hotel near airport'
+                        ],
+                        accommodation: 'Hotel near Denver Airport',
+                        notes: 'Landed in the middle of a snow storm — welcome to Colorado!'
+                    },
+                    {
+                        day: 1,
+                        date: 'February 17, 2022',
+                        title: 'Rocky Mountain National Park',
+                        activities: [
+                            'Late morning: Brunch at "Snooze"',
+                            'Stop at Walmart for water and snacks',
+                            'Drive to Rocky Mountain National Park',
+                            'First snow shoe hike: Emerald Lake Trail (1.5 miles)',
+                            'Walk on completely frozen lakes',
+                            'Evening: Visit UC Boulder to meet friends',
+                            'Dinner at Zayka (Indian restaurant)'
+                        ],
+                        accommodation: 'Hotel near Denver Airport',
+                        notes: 'Driving through RMNP felt like driving in the clouds! Wind was blowing at 15+ mph. The frozen lakes blew my mind — walking on ice where we\'d be swimming in summer!'
+                    },
+                    {
+                        day: 2,
+                        date: 'February 18, 2022',
+                        title: 'Garden of the Gods & Royal Gorge',
+                        activities: [
+                            'Breakfast at Panera Bread',
+                            'Drive to Colorado Springs',
+                            'Visit Garden of the Gods - huge rocks with mountain backdrop',
+                            'Royal Gorge Train Ride along the river at mountain foothills',
+                            'Stand in open coach and enjoy the views',
+                            'Return to Airbnb',
+                            'Friends from California join us'
+                        ],
+                        accommodation: 'Airbnb',
+                        notes: 'Fun fact: The rocks at Garden of the Gods were gifted to Colorado Springs with the promise to keep it always free for the public. The train ride was one of the best experiences!'
+                    },
+                    {
+                        day: 3,
+                        date: 'February 19, 2022',
+                        title: 'St. Mary\'s Glacier & Hot Springs',
+                        activities: [
+                            'Snowshoeing at St. Mary\'s Glacier',
+                            'Reached frozen lake with tremendous winds',
+                            'Diving into snow and slo-mo videos',
+                            'Lunch after the hike',
+                            'Afternoon: Hot water jacuzzi at Indian Hot Springs Resort',
+                            'Evening: Ice cream at Little Man Ice Cream (try strawberry!)'
+                        ],
+                        accommodation: 'Airbnb',
+                        notes: 'Hot water jacuzzi in the middle of snow-capped mountains — cannot get better than this! A must-do in Colorado.'
+                    },
+                    {
+                        day: 4,
+                        date: 'February 20, 2022',
+                        title: 'Snowmobiling in Breckenridge',
+                        activities: [
+                            'Drive two huge vans (including a Hummer) with trailers to trailhead',
+                            'Unload 5 snowmobiles ourselves with help from locals',
+                            'Snowmobile through completely snow-covered mountains',
+                            'One snowmobile got stuck knee-deep in snow',
+                            '30 minutes to dig it out (pro tip: don\'t accelerate when stuck!)',
+                            'Continue through magical white landscape with pine trees',
+                            'Evening: Drive to Vail',
+                            'Dinner at Mexican restaurant in Vail'
+                        ],
+                        accommodation: 'Airbnb',
+                        notes: 'One of the most beautiful experiences of my life. Never been in the middle of so much snow. Simply magical! Vail is one of the most romantic towns I\'ve ever seen.'
+                    },
+                    {
+                        day: 5,
+                        date: 'February 21, 2022',
+                        title: 'Skiing at Loveland Pass',
+                        activities: [
+                            'Check out of Airbnb',
+                            'Beginner ski lesson at Loveland Pass (4 hours)',
+                            'First time wearing ski boots (very heavy!)',
+                            'Learn fundamentals and practice',
+                            'Fell infinite times before getting the hang of it',
+                            'Hardest part: learning to stop without falling',
+                            'Lunch at ski resort - hot chocolate and veggie burgers',
+                            'Drive to Denver Airport',
+                            'Evening flight back to Newark'
+                        ],
+                        accommodation: null,
+                        notes: 'Skiing for the first time! Super tiring but so much fun when you can come downhill at full speed and control your direction. Colorado is a must-visit during winter!'
+                    }
+                ]
+            },
+            {
+                id: 'miami-2022',
+                month: 3, date: 'March 2022',
+                title: 'Miami', subtitle: 'Spring Break · First Skydiving',
+                cover: null, appleAlbum: null,
+                story: 'Spring break in Miami with Tiny — and my first time skydiving! The rush of freefall over the Florida coast.',
+                gallery: []
+            },
+            {
+                id: 'philadelphia-2022',
+                month: 4, date: 'April 2022',
+                title: 'Philadelphia', subtitle: 'Day Trip for Cherry Springs',
+                cover: null, appleAlbum: null,
+                story: 'A quick day trip to Philadelphia — history, cheesesteaks, and cherry blossoms.',
+                gallery: []
+            },
+            {
+                id: 'catskills-2022',
+                month: 5, date: 'May 2022',
+                title: 'Catskills', subtitle: 'Trip with Parents',
+                cover: null, appleAlbum: null,
+                story: 'A family getaway to the Catskills — nature walks, mountain views, and time with my parents.',
+                gallery: []
+            },
+            {
+                id: 'cape-may-2022',
+                month: 6, date: 'June 2022',
+                title: 'Cape May', subtitle: 'New Jersey · Beach Day Trip',
+                cover: null, appleAlbum: null,
+                story: 'A sunny day trip to Cape May — Victorian charm and Atlantic Ocean waves.',
+                gallery: []
+            },
+            {
+                id: 'smoky-2022',
+                month: 7, date: 'July 2022',
+                title: 'Great Smoky Mountains', subtitle: 'National Park',
+                cover: null, appleAlbum: null,
+                story: 'Misty mountain peaks, lush forests, and the ancient beauty of the Smokies.',
+                gallery: []
+            },
+            {
+                id: 'pittsburgh-2022',
+                month: 8, date: 'August 2022',
+                title: 'Pittsburgh', subtitle: 'CMU Visit',
+                cover: null, appleAlbum: null,
+                story: 'Back to Pittsburgh and CMU — nostalgia, campus walks, and memories of college days.',
+                gallery: []
+            },
+            {
+                id: 'grand-teton-2022',
+                month: 9, date: 'September 2022',
+                title: 'Grand Teton', subtitle: 'National Park · Wyoming',
+                cover: null, appleAlbum: 'Grand Teton',
+                story: 'The jagged peaks of the Tetons rising above pristine lakes — one of America\'s most stunning national parks.',
+                gallery: []
+            },
+            {
+                id: 'matheran-2022',
+                month: 10, date: 'October 2022',
+                title: 'Matheran', subtitle: 'Maharashtra, India',
+                cover: null, appleAlbum: null,
+                story: 'A peaceful escape to the car-free hill station of Matheran — narrow-gauge trains, red laterite paths, and misty valley views.',
+                gallery: []
+            },
+            {
+                id: 'new-orleans-2022',
+                month: 11, date: 'November 2022',
+                title: 'New Orleans', subtitle: 'Louisiana',
+                cover: null, appleAlbum: null,
+                story: 'Jazz in the streets, beignets at Café Du Monde, and the soul of New Orleans. This trip was all about the food and jazz clubs — a culinary and musical journey through NOLA.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'November 24, 2022 (Thanksgiving)',
+                        title: 'Arrival & French Quarter',
+                        activities: [
+                            'Brunch at Monty\'s on the Square',
+                            'Afternoon: Beignets at Café du Monde',
+                            'Explore French Quarter',
+                            'Dinner at Aroma Indian'
+                        ],
+                        accommodation: 'New Orleans',
+                        notes: 'Started with the iconic beignets — powdered sugar everywhere! Café du Monde is a NOLA must.'
+                    },
+                    {
+                        day: 2,
+                        date: 'November 25, 2022',
+                        title: 'Food Tour Day',
+                        activities: [
+                            'Lunch at Thaihey',
+                            'Happy Hour at Atchafalaya',
+                            'Dinner at The Court of Two Sisters (9 PM)',
+                            'Evening stroll through the Quarter'
+                        ],
+                        accommodation: 'New Orleans',
+                        notes: 'The Court of Two Sisters — beautiful courtyard dining experience with Southern charm'
+                    },
+                    {
+                        day: 3,
+                        date: 'November 26, 2022',
+                        title: 'Brunch & Jazz',
+                        activities: [
+                            'Brunch at Gianna Restaurant (12:15 PM)',
+                            'Happy Hour at Barrel Proof',
+                            'Dinner at Lebanon Grill',
+                            'Night: Live jazz at Spotted Cat Music Club'
+                        ],
+                        accommodation: 'New Orleans',
+                        notes: 'Spotted Cat Music Club — intimate venue with incredible live jazz. The music scene in NOLA is unmatched!'
+                    },
+                    {
+                        day: 4,
+                        date: 'November 27, 2022',
+                        title: 'Preservation Hall Jazz',
+                        activities: [
+                            'Daytime: Explore the city',
+                            'Evening: Jazz Performance at Preservation Hall (6:15 PM)',
+                            'Dinner at Jewel of The South (8 PM)'
+                        ],
+                        accommodation: 'New Orleans',
+                        notes: 'Preservation Hall — legendary venue, historic jazz experience in an intimate setting'
+                    },
+                    {
+                        day: 5,
+                        date: 'November 28, 2022',
+                        title: 'Swamp Tour & Departure',
+                        activities: [
+                            'Morning: Alligator boat ride in the bayou',
+                            'See alligators in their natural habitat',
+                            'Explore Louisiana swamplands',
+                            'Afternoon: Return to city',
+                            'Departure from New Orleans'
+                        ],
+                        accommodation: null,
+                        notes: 'The swamp tour was incredible — seeing alligators up close in the Louisiana bayou. A perfect wild ending to the trip!'
+                    }
+                ]
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2021
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2021,
+        tagline: 'Exploring America, one park at a time.',
+        trips: [
+            {
+                id: 'bay-area-2021',
+                month: 3, date: 'March 2021',
+                title: 'Bay Area', subtitle: 'California',
+                cover: null, appleAlbum: null,
+                story: 'Visiting the Bay Area — tech culture, Golden Gate views, and California sunshine.',
+                gallery: []
+            },
+            {
+                id: 'la-sd-2021',
+                month: 4, date: 'April 2021',
+                title: 'LA & San Diego', subtitle: 'Palm Springs · Joshua Tree National Park',
+                cover: null, appleAlbum: null,
+                story: 'Southern California road trip — desert landscapes of Joshua Tree, mid-century modern Palm Springs, and coastal vibes.',
+                gallery: []
+            },
+            {
+                id: 'utah-2021',
+                month: 5, date: 'May 2021',
+                title: 'Utah', subtitle: 'First DSI Trip · Zion · Bryce · Grand Escalante',
+                cover: null, appleAlbum: null,
+                story: 'First trip with the DSI gang — exploring Zion, Bryce Canyon, and Grand Staircase-Escalante. The beginning of many adventures.',
+                gallery: [],
+                itinerary: [
+                    {
+                        day: 1,
+                        date: 'May 2021',
+                        title: 'Bonneville Salt Flats',
+                        activities: [
+                            'Arrival in Salt Lake City',
+                            'Drive to Bonneville Salt Flats',
+                            'Explore the vast white expanse',
+                            'Photography on the endless flat terrain'
+                        ],
+                        accommodation: 'Near Salt Lake City',
+                        notes: 'The otherworldly landscape of the salt flats — endless white stretching to the horizon'
+                    },
+                    {
+                        day: 2,
+                        date: 'May 2021',
+                        title: 'Bryce Canyon National Park',
+                        activities: [
+                            'Drive to Bryce Canyon National Park',
+                            'Mini trek 1: Explore the hoodoos',
+                            'Mini trek 2: Canyon viewpoints',
+                            'Sunset amphitheater views'
+                        ],
+                        accommodation: 'Near Bryce Canyon',
+                        notes: 'The unique rock formations (hoodoos) at Bryce are unlike anything else — nature\'s sculptures carved by time'
+                    },
+                    {
+                        day: 3,
+                        date: 'May 2021',
+                        title: 'Zion National Park - The Narrows',
+                        activities: [
+                            'Drive to Zion National Park',
+                            'Hike The Narrows',
+                            'Wade through the Virgin River',
+                            'Walk between towering canyon walls'
+                        ],
+                        accommodation: 'Near Zion',
+                        notes: 'The Narrows — one of the most unique hikes, walking through the river with canyon walls rising on both sides'
+                    },
+                    {
+                        day: 4,
+                        date: 'May 2021',
+                        title: 'Grand Staircase-Escalante',
+                        activities: [
+                            'Drive to Grand Staircase-Escalante National Monument',
+                            'Hike Spooky Gulch - narrow slot canyon',
+                            'Hike Peek-a-boo Gulch - technical slot canyon',
+                            'Navigate through tight passages'
+                        ],
+                        accommodation: 'Near Escalante',
+                        notes: 'Spooky and Peek-a-boo slot canyons are adventurous — squeezing through narrow passages in stunning red rock formations'
+                    },
+                    {
+                        day: 5,
+                        date: 'May 2021',
+                        title: 'Silver Lake & Return',
+                        activities: [
+                            'Drive back towards Salt Lake City',
+                            'Stop at Silver Lake',
+                            'Scenic mountain lake views',
+                            'Return to Salt Lake City',
+                            'Departure'
+                        ],
+                        accommodation: null,
+                        notes: 'A peaceful end to an incredible adventure with the DSI crew'
+                    }
+                ]
+            },
+            {
+                id: 'poconos-rafting-2021',
+                month: 6, date: 'June 2021',
+                title: 'Poconos', subtitle: 'White Water River Rafting',
+                cover: null, appleAlbum: null,
+                story: 'Adrenaline rush on the rapids — white water rafting through the Poconos.',
+                gallery: []
+            },
+            {
+                id: 'boston-manchester-2021',
+                month: 6, date: 'June 2021',
+                title: 'Boston & Manchester-by-the-Sea', subtitle: 'Massachusetts',
+                cover: null, appleAlbum: null,
+                story: 'Exploring Boston and the charming coastal town of Manchester-by-the-Sea.',
+                gallery: []
+            },
+            {
+                id: 'dc-shenandoah-2021',
+                month: 7, date: 'July 2021',
+                title: 'DC & Shenandoah', subtitle: 'National Park',
+                cover: null, appleAlbum: null,
+                story: 'DC monuments and Shenandoah\'s Blue Ridge Mountains — history and nature in one trip.',
+                gallery: []
+            },
+            {
+                id: 'yellowstone-2021',
+                month: 9, date: 'September 2021',
+                title: 'Yellowstone', subtitle: 'National Park · Wyoming',
+                cover: null, appleAlbum: null,
+                story: 'Geysers, hot springs, bison herds, and the otherworldly landscapes of America\'s first national park.',
+                gallery: []
+            },
+            {
+                id: 'vegas-2021',
+                month: 11, date: 'November 2021',
+                title: 'Las Vegas', subtitle: 'Nevada',
+                cover: null, appleAlbum: null,
+                story: 'The dazzling lights of Vegas — shows, the Strip, and desert adventures just beyond the city.',
+                gallery: []
+            },
+            {
+                id: 'miami-tampa-2021',
+                month: 12, date: 'December 2021',
+                title: 'Miami & Tampa', subtitle: 'Florida with Grandparents',
+                cover: null, appleAlbum: null,
+                story: 'A special Florida trip with my grandparents — beach days, family time, and making memories together.',
+                gallery: []
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2020
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2020,
+        tagline: 'A year paused, but not stopped.',
+        trips: [
+            {
+                id: 'lake-placid-2020',
+                month: 11, date: 'November 2020',
+                title: 'Lake Placid', subtitle: 'New York',
+                cover: null, appleAlbum: null,
+                story: 'A late fall escape to Lake Placid — mountain air, Olympic history, and Adirondack beauty.',
+                gallery: []
+            }
+        ]
+    },
+
+    // ──────────────────────────────────────────────────────
+    // 2019
+    // ──────────────────────────────────────────────────────
+    {
+        year: 2019,
+        tagline: 'Where it all began.',
+        trips: [
+            {
+                id: 'boston-2019',
+                month: 11, date: 'November 2019',
+                title: 'Boston', subtitle: 'Massachusetts · First Trip in the US',
+                cover: null, appleAlbum: null,
+                story: 'My very first trip in the United States — exploring Boston, the beginning of countless adventures to come.',
+                gallery: []
+            }
+        ]
+    }
+
+];
+
+/* ═══════════════════════════════════════════════════════════
+   ENGINE — no need to edit below this line
+═══════════════════════════════════════════════════════════ */
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function initials(title) {
+    return title.split(' ').map(w => w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function countUnique(trips, field) {
+    return new Set(trips.map(t => t[field])).size;
+}
+
+// ── HOME ──
+function buildHome() {
+    const grid = document.getElementById('yearsGrid');
+    grid.innerHTML = '';
+    // Sort newest first
+    [...travelData].sort((a,b) => b.year - a.year).forEach(yd => {
+        const destinations = yd.trips.map(t => t.title).join(' · ');
+        const months = new Set(yd.trips.map(t => t.month)).size;
+        const card = document.createElement('div');
+        card.className = 'year-card';
+        card.onclick = () => showYear(yd.year);
+        card.innerHTML = `
+            <div class="year-card-bg-num">${yd.year}</div>
+            <div class="year-card-year">${yd.year}</div>
+            <div class="year-card-stats">
+                <div class="year-stat">
+                    <span class="year-stat-num">${yd.trips.length}</span>
+                    <span class="year-stat-label">Trips</span>
+                </div>
+                <div class="year-stat">
+                    <span class="year-stat-num">${months}</span>
+                    <span class="year-stat-label">Months</span>
+                </div>
+            </div>
+            <p class="year-card-destinations">${destinations}</p>
+            <div class="year-card-arrow">→</div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// ── YEAR VIEW ──
+function showYear(year) {
+    const yd = travelData.find(d => d.year === year);
+    if (!yd) return;
+
+    document.getElementById('view-home').classList.remove('active');
+    document.getElementById('view-year').classList.add('active');
+    window.scrollTo(0, 0);
+
+    document.getElementById('yBgNum').textContent = year;
+    document.getElementById('yTitle').textContent = year;
+    document.getElementById('yTagline').textContent = yd.tagline || '';
+    document.getElementById('yNavYear').textContent = year + ' Travels';
+    document.getElementById('yFooter').textContent = `© ${year} · My Travel Portfolio`;
+
+    // Stats
+    const months = new Set(yd.trips.map(t => t.month)).size;
+    document.getElementById('yStats').innerHTML = `
+        <div><span class="year-view-stat-num">${yd.trips.length}</span><span class="year-view-stat-label">Trips</span></div>
+        <div><span class="year-view-stat-num">${months}</span><span class="year-view-stat-label">Months</span></div>
+    `;
+
+    // Group by month
+    const byMonth = {};
+    yd.trips.forEach(t => { if (!byMonth[t.month]) byMonth[t.month] = []; byMonth[t.month].push(t); });
+
+    // Month pills
+    const pills = document.getElementById('yMonthPills');
+    pills.innerHTML = '';
+    MONTHS.forEach((name, i) => {
+        const m = i + 1;
+        const pill = document.createElement('button');
+        pill.className = 'month-pill' + (byMonth[m] ? ' has-trips' : '');
+        pill.textContent = name.slice(0,3);
+        if (byMonth[m]) pill.onclick = () => document.getElementById(`m-${year}-${m}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        pills.appendChild(pill);
+    });
+
+    // Timeline
+    const timeline = document.getElementById('yTimeline');
+    timeline.innerHTML = '';
+    Object.keys(byMonth).sort((a,b) => a-b).forEach(m => {
+        const group = document.createElement('div');
+        group.className = 'month-group';
+        group.id = `m-${year}-${m}`;
+        group.innerHTML = `
+            <div class="month-label">
+                <span class="month-name">${MONTHS[m-1]}</span>
+                <div class="month-divider"></div>
+                <span class="month-trip-count">${byMonth[m].length} trip${byMonth[m].length > 1 ? 's' : ''}</span>
+            </div>
+            <div class="trips-row"></div>
+        `;
+        const row = group.querySelector('.trips-row');
+        byMonth[m].forEach(trip => {
+            const card = document.createElement('div');
+            card.className = 'trip-card';
+            card.onclick = () => openModal(trip);
+            card.innerHTML = `
+                ${trip.cover
+                    ? `<img class="trip-cover" src="${trip.cover}" alt="${trip.title}" loading="lazy">`
+                    : `<div class="trip-cover-placeholder">${initials(trip.title)}</div>`}
+                <div class="trip-card-body">
+                    <p class="trip-date-tag">${trip.date}</p>
+                    <h3 class="trip-title">${trip.title}</h3>
+                    <p class="trip-subtitle">${trip.subtitle}</p>
+                    ${trip.appleAlbum ? `<div class="trip-album-badge">📷 ${trip.appleAlbum}</div>` : ''}
+                </div>
+                <div class="trip-card-arrow">→</div>
+            `;
+            row.appendChild(card);
+        });
+        timeline.appendChild(group);
+    });
+}
+
+function showHome() {
+    document.getElementById('view-year').classList.remove('active');
+    document.getElementById('view-home').classList.add('active');
+    window.scrollTo(0, 0);
+}
+
+// ── MODAL ──
+function openModal(trip) {
+    document.getElementById('mDate').textContent = trip.date;
+    document.getElementById('mTitle').textContent = trip.title;
+    document.getElementById('mMeta').textContent = trip.subtitle;
+    document.getElementById('mStory').innerHTML = `<p>${trip.story}</p>`;
+
+    const gallery = document.getElementById('mGallery');
+    const label = document.getElementById('mPhotosLabel');
+
+    if (trip.gallery && trip.gallery.length > 0) {
+        label.textContent = `Photos — ${trip.gallery.length} image${trip.gallery.length !== 1 ? 's' : ''}`;
+        gallery.className = 'modal-gallery';
+        gallery.innerHTML = trip.gallery.map(item => `
+            <div class="gallery-thumb" onclick="openLightbox('${item.src}','${item.type || 'image'}')">
+                ${item.type === 'video'
+                    ? `<video src="${item.src}" muted loop></video>`
+                    : `<img src="${item.src}" alt="${item.caption || ''}" loading="lazy">`}
+                ${item.caption ? `<div class="gallery-thumb-cap">${item.caption}</div>` : ''}
+            </div>
+        `).join('');
+    } else {
+        label.textContent = '';
+        const hint = trip.appleAlbum
+            ? `Your photos are in Apple Photos album <code>"${trip.appleAlbum}"</code>.<br>Upload them to Imgur and add URLs to the <code>gallery</code> array for this trip.`
+            : `Add photos by uploading to Imgur and adding URLs to the <code>gallery</code> array for this trip.`;
+        gallery.className = '';
+        gallery.innerHTML = `<div class="no-photos"><p>📷 No photos added yet.<br>${hint}</p></div>`;
+    }
+
+    // Add itinerary if present
+    const itineraryContainer = document.getElementById('mItinerary');
+    if (trip.itinerary && trip.itinerary.length > 0) {
+        itineraryContainer.style.display = 'block';
+        const itineraryHTML = trip.itinerary.map(day => `
+            <div class="itinerary-day">
+                <div class="itinerary-day-header">
+                    <span class="itinerary-day-num">Day ${day.day}</span>
+                    <span class="itinerary-day-title">${day.title}</span>
+                    ${day.date ? `<span class="itinerary-day-date">${day.date}</span>` : ''}
+                </div>
+                <ul class="itinerary-activities">
+                    ${day.activities.map(activity => `<li>${activity}</li>`).join('')}
+                </ul>
+                ${day.accommodation ? `<div class="itinerary-accommodation">${day.accommodation}</div>` : ''}
+                ${day.notes ? `<div class="itinerary-notes">${day.notes}</div>` : ''}
+            </div>
+        `).join('');
+        
+        document.getElementById('mItineraryContent').innerHTML = itineraryHTML;
+    } else {
+        itineraryContainer.style.display = 'none';
+    }
+
+    document.getElementById('tripModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('tripModal').classList.remove('open');
+    document.body.style.overflow = '';
+}
+
+function openLightbox(src, type) {
+    event.stopPropagation();
+    const c = document.getElementById('lightboxContent');
+    c.innerHTML = type === 'video'
+        ? `<video src="${src}" controls autoplay loop style="max-width:92vw;max-height:92vh;"></video>`
+        : `<img src="${src}" style="max-width:92vw;max-height:92vh;object-fit:contain;">`;
+    document.getElementById('lightbox').classList.add('open');
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightboxContent').innerHTML = '';
+}
+
+document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { closeModal(); closeLightbox(); }
+});
+
+
+/* ═══════════════════════════════════════════════════════════
+   MAP — coordinates for each destination
+   Add lat/lng when you add new trips to travelData
+═══════════════════════════════════════════════════════════ */
+const destinationCoords = {
+    // 2026
+    'newport-2026':         { lat: 41.4901,  lng: -71.3128 },
+    
+    // 2025
+    'mahabaleshwar-2025':   { lat: 17.9239,  lng: 73.6569 },
+    'miami-2025':           { lat: 25.7617,  lng: -80.1918 },
+    'livingston-manor-2025':{ lat: 41.8926,  lng: -74.8285 },
+    'los-angeles-2025':     { lat: 34.0522,  lng: -118.2437 },
+    'dc-2025':              { lat: 38.9072,  lng: -77.0369 },
+    'ac-may-2025':          { lat: 39.3643,  lng: -74.4229 },
+    'utah-2025':            { lat: 38.5733,  lng: -109.5498 },
+    'lake-george-2025':     { lat: 43.4231,  lng: -73.7132 },
+    'ac-aug-2025':          { lat: 39.3643,  lng: -74.4229 },
+    'menlo-park-2025':      { lat: 37.4530,  lng: -122.1817 },
+    'bear-mountain-2025':   { lat: 41.3137,  lng: -74.0059 },
+    'noblesville-2025':     { lat: 40.0456,  lng: -86.0086 },
+    'bangalore-2025':       { lat: 12.9716,  lng: 77.5946 },
+    'sarangpur-2025':       { lat: 22.9167,  lng: 71.5667 },
+    'bhopal-2025':          { lat: 23.2599,  lng: 77.4126 },
+    'nagpur-2025':          { lat: 21.1458,  lng: 79.0882 },
+    
+    // 2024
+    'grenada-2024':         { lat: 12.1165,  lng: -61.6790 },
+    'gujarat-2024':         { lat: 22.2587,  lng: 71.1924 },
+    'pennsylvania-2024':    { lat: 40.2732,  lng: -76.8867 },
+    'mexico-2024':          { lat: 20.2114,  lng: -87.4654 },
+    'montauk-2024':         { lat: 41.0362,  lng: -71.9577 },
+    'watkins-glen-2024':    { lat: 42.3737,  lng: -76.8744 },
+    'ac-july-2024':         { lat: 39.3643,  lng: -74.4229 },
+    'california-2024':      { lat: 39.0968,  lng: -120.0324 },
+    'upstate-fall-2024':    { lat: 42.6526,  lng: -73.7562 },
+    'arizona-2024':         { lat: 34.0489,  lng: -111.0937 },
+    'cape-cod-2024':        { lat: 41.6688,  lng: -70.2962 },
+    
+    // 2023
+    'poconos-2023':         { lat: 41.1220,  lng: -75.3446 },
+    'nj-getaway-2023':      { lat: 40.0583,  lng: -74.4057 },
+    'portugal-2023':        { lat: 38.7223,  lng: -9.1393 },
+    'puerto-rico-2023':     { lat: 18.2208,  lng: -66.5901 },
+    'pittsburgh-2023':      { lat: 40.4406,  lng: -79.9959 },
+    'cherry-springs-2023':  { lat: 41.6611,  lng: -77.8200 },
+    'hillsboro-2023':       { lat: 45.5228,  lng: -122.9898 },
+    'seattle-2023':         { lat: 47.6062,  lng: -122.3321 },
+    'lake-george-2023':     { lat: 43.4231,  lng: -73.7132 },
+    'acadia-2023':          { lat: 44.3386,  lng: -68.2733 },
+    'michigan-chicago-2023':{ lat: 41.8781,  lng: -87.6298 },
+    'spain-2023':           { lat: 40.4168,  lng: -3.7038 },
+    'new-hampshire-2023':   { lat: 43.1939,  lng: -71.5724 },
+    'miami-2023':           { lat: 25.7617,  lng: -80.1918 },
+    
+    // 2022
+    'colorado-2022':        { lat: 40.3772,  lng: -105.5217 },
+    'miami-2022':           { lat: 25.7617,  lng: -80.1918 },
+    'philadelphia-2022':    { lat: 39.9526,  lng: -75.1652 },
+    'catskills-2022':       { lat: 42.0315,  lng: -74.3823 },
+    'cape-may-2022':        { lat: 38.9351,  lng: -74.9060 },
+    'smoky-2022':           { lat: 35.6532,  lng: -83.5070 },
+    'pittsburgh-2022':      { lat: 40.4406,  lng: -79.9959 },
+    'grand-teton-2022':     { lat: 43.7904,  lng: -110.6818 },
+    'matheran-2022':        { lat: 18.9850,  lng: 73.2650 },
+    'new-orleans-2022':     { lat: 29.9511,  lng: -90.0715 },
+    
+    // 2021
+    'bay-area-2021':        { lat: 37.7749,  lng: -122.4194 },
+    'la-sd-2021':           { lat: 33.8734,  lng: -116.5453 },
+    'utah-2021':            { lat: 37.2982,  lng: -113.0263 },
+    'poconos-rafting-2021': { lat: 41.1220,  lng: -75.3446 },
+    'boston-manchester-2021':{ lat: 42.3601, lng: -71.0589 },
+    'dc-shenandoah-2021':   { lat: 38.2927,  lng: -78.6789 },
+    'yellowstone-2021':     { lat: 44.4280,  lng: -110.5885 },
+    'vegas-2021':           { lat: 36.1699,  lng: -115.1398 },
+    'miami-tampa-2021':     { lat: 27.9506,  lng: -82.4572 },
+    
+    // 2020
+    'lake-placid-2020':     { lat: 44.2795,  lng: -73.9799 },
+    
+    // 2019
+    'boston-2019':          { lat: 42.3601,  lng: -71.0589 },
+};
+
+function buildMap() {
+    // Collect all trips across all years
+    const allTrips = travelData.flatMap(yd =>
+        yd.trips.map(t => ({ ...t, year: yd.year }))
+    );
+
+    // Deduplicate by location (group same place visited multiple times)
+    const grouped = {};
+    allTrips.forEach(trip => {
+        const coords = destinationCoords[trip.id];
+        if (!coords) return;
+        const key = `${coords.lat},${coords.lng}`;
+        if (!grouped[key]) grouped[key] = { coords, trips: [] };
+        grouped[key].trips.push(trip);
+    });
+
+    const pinCount = Object.keys(grouped).length;
+    document.getElementById('mapPinCount').textContent = pinCount;
+
+    const map = L.map('travelMap', {
+        center: [25, 15],
+        zoom: 2,
+        minZoom: 2,
+        maxZoom: 12,
+        zoomControl: true,
+        scrollWheelZoom: false,
+    });
+
+    // Dark-toned map tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '© OpenStreetMap contributors, © CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom pin icon
+    function makeIcon(count) {
+        return L.divIcon({
+            className: '',
+            html: `<div style="
+                width: ${count > 1 ? 32 : 26}px;
+                height: ${count > 1 ? 32 : 26}px;
+                background: #C4622D;
+                border: 2px solid #F5F0E8;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+                display: flex; align-items: center; justify-content: center;
+            ">
+                ${count > 1 ? `<span style="transform:rotate(45deg);color:white;font-size:10px;font-weight:600;">${count}</span>` : ''}
+            </div>`,
+            iconSize: [count > 1 ? 32 : 26, count > 1 ? 32 : 26],
+            iconAnchor: [count > 1 ? 16 : 13, count > 1 ? 32 : 26],
+            popupAnchor: [0, -28],
+        });
+    }
+
+    Object.values(grouped).forEach(({ coords, trips }) => {
+        const marker = L.marker([coords.lat, coords.lng], { icon: makeIcon(trips.length) });
+
+        const popupHTML = trips.map(t => `
+            <div style="margin-bottom:${trips.length > 1 ? '0.8rem' : '0'}; padding-bottom:${trips.length > 1 ? '0.8rem' : '0'}; border-bottom:${trips.length > 1 ? '1px solid rgba(255,255,255,0.1)' : 'none'}">
+                <div class="map-popup-title">${t.title}</div>
+                <div class="map-popup-sub">${t.subtitle}</div>
+                <div class="map-popup-date">${t.date}</div>
+            </div>
+        `).join('');
+
+        marker.bindPopup(`<div style="min-width:180px">${popupHTML}</div>`, {
+            maxWidth: 260
+        });
+
+        marker.addTo(map);
+    });
+}
+
+buildHome();
+buildMap();
+</script>
+</body>
+</html>
