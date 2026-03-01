@@ -2473,6 +2473,16 @@ function buildMap() {
         scrollWheelZoom: false,
     });
 
+    // Enable zoom with Cmd+scroll (Mac) or Ctrl+scroll (Windows/Linux)
+    const mapEl = document.getElementById('travelMap');
+    mapEl.addEventListener('wheel', function(e) {
+        if (e.metaKey || e.ctrlKey) {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -1 : 1;
+            map.zoomIn(delta);
+        }
+    }, { passive: false });
+
     // Beautiful light map style - perfect for travel portfolios
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '© OpenStreetMap contributors, © CARTO',
